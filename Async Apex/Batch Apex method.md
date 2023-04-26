@@ -21,5 +21,3 @@
 
 ```
 ``` 
-
-> Source: [https://developer.salesforce.com/forums/?id=906F0000000D8hwIAC]
