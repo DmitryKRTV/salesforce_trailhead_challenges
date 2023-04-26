@@ -15,9 +15,50 @@
 ### Apex Class
 
 ```
+public with sharing class LeadProcessor implements Database.Batchable<SObject> {
+    public Database.QueryLocator start(Database.BatchableContext bc) {
+        return Database.getQueryLocator(
+            'SELECT LeadSource FROM Lead'
+        );
+    }
+    public void execute(Database.BatchableContext bc, List<Lead> scope){
+        // process each batch of records
+        List<Lead> leads = new List<Lead>();
+        for (Lead lead : scope) {
+                lead.LeadSource = 'Dreamforce';
+                leads.add(lead);
+        }
+        update leads;
+    }
+    public void finish(Database.BatchableContext bc){
+        AsyncApexJob job = [SELECT Id, Status, NumberOfErrors,
+            JobItemsProcessed,
+            TotalJobItems, CreatedBy.Email
+            FROM AsyncApexJob
+            WHERE Id = :bc.getJobId()];
+    }
+}
 ```
 
 ### Apex Test Class
 
 ```
+@isTest
+public with sharing class LeadProcessorTest {
+    @testSetup
+    static void setup() {
+        List<Lead> leads = new List<Lead>();
+        for (Integer i = 0; i < 200; i++) {
+            leads.add(new Lead(lastName='lead' + i, company='net', MobilePhone='123456789'));
+        }
+        insert leads;
+    }
+    @isTest static void LeadProcessorTest() {
+        Test.startTest();
+            LeadProcessor lp = new LeadProcessor();
+            Id batchId = Database.executeBatch(lp);
+        Test.stopTest();
+        System.assertEquals(200, [select count() from lead where LeadSource='Dreamforce']);
+    }
+}
 ``` 
