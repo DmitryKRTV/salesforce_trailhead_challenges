@@ -17,7 +17,7 @@ Create an Apex class with a method using the @future annotation that accepts a L
 public with sharing class AccountProcessor {
     @future
     public static void countContacts(List<Id> accountIds) {
-        List<Account> relatedAccounts = [SELECT Id, Number_Of_Contacts__c FROM Account WHERE Id IN :accountIds];
+        List<Account> relatedAccounts = [SELECT Id, Number_Of_Contacts__c,(Select Id FROM Contacts) FROM Account WHERE Id IN :accountIds];
         for(Account a :relatedAccounts) {
             List<Contact> relatedContacts = a.contacts;
             a.Number_Of_Contacts__c = relatedContacts.size();
@@ -34,8 +34,50 @@ public with sharing class AccountProcessor {
 public with sharing class AccountProcessorTest {
     @isTest
     public static void countContactsTest(){
-        
+        Integer accToContactRelationAmount = 0;
+        List<Account> accs = [SELECT Id, (Select Id FROM Contacts) FROM Account LIMIT 1];
+        List<Id> mockId = new List<Id>();
+        if(accs.size() > 0) {
+            if(accs[0].contacts.size() != 0) {
+                accToContactRelationAmount = accs[0].contacts.size();
+            }
+            
+            mockId.add(accs[0].id);
+        }
+        Test.startTest();
+            AccountProcessor.countContacts(mockId);
+        Test.stopTest(); 
+        if(mockId.size() > 0) {
+        List<Account> accsResult = [SELECT Id, Number_of_Contacts__c FROM Account WHERE Id = :mockId[0]];
+    
+        if(accsResult.size() > 0) {
+            System.assertEquals(Integer.valueOf(accsResult[0].Number_of_Contacts__c), accToContactRelationAmount);
+        }
     }
+    }
+
+    public static testmethod void TestAccountProcessorTest() 
+    {
+        Account a = new Account();
+        a.Name = 'Test Account';
+        Insert a;
+
+        Contact cont = New Contact();
+        cont.FirstName ='Bob';
+        cont.LastName ='Masters';
+        cont.AccountId = a.Id;
+        Insert cont;
+        
+        List<Id> setAccId = new List<ID>();
+        setAccId.add(a.id);
+ 
+        Test.startTest();
+            AccountProcessor.countContacts(setAccId);
+        Test.stopTest();
+        
+        Account ACC = [select Number_of_Contacts__c from Account where id = :a.id LIMIT 1];
+        System.assertEquals ( Integer.valueOf(ACC.Number_of_Contacts__c) ,1);
+  }
 }
 ``` 
 
