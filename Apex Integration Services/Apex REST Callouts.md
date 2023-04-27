@@ -1,7 +1,8 @@
-# Create an Apex class that calls a REST endpoint and write a test class.
+# Apex REST Callouts
 
-## Create an Apex class that calls a REST endpoint to return the name of an animal, write unit tests that achieve 100% code coverage for the class using a mock response, and run your Apex tests.
+## Create an Apex class that calls a REST endpoint and write a test class.
 
+  Create an Apex class that calls a REST endpoint to return the name of an animal, write unit tests that achieve 100% code coverage for the class using a mock response, and run your Apex tests.
 * Create an Apex class:
   * Name: AnimalLocator
   * Method name: getAnimalNameById
