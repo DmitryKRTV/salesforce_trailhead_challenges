@@ -38,6 +38,8 @@ public with sharing class DailyLeadProcessor implements Schedulable {
 @isTest
 public with sharing class DailyLeadProcessorTest {
     //Seconds Minutes Hours Day_of_month Month Day_of_week optional_year
+    //Note: in any corn expression Day and Day_of_the_week can not be used simultaneously.
+    //denotes all and ? denotes none.
     public static String cronExp = '0 0 0 27 4 ? 2024';
     @TestSetup
     static void makeData(){
